@@ -1,0 +1,38 @@
+version: '3.3'
+services:
+  redis:
+    image: redis:alpine
+    ports:
+    - target: 6379
+      published: 6379
+    networks:
+      - net
+  outproxy:
+    image: outproxy
+    build:
+      context: outproxy
+    ports:
+    - target: 80
+      published: 80
+    networks:
+      - net
+    stop_signal: KILL
+    stop_grace_period: 1s
+  dumbserver:
+    image: dumbserver
+    build:
+      context: dumbserver
+    ports:
+    - target: 443
+      published: 443
+    networks:
+      - net
+    secrets:
+      - vault_token
+    stop_grace_period: 1s
+networks:
+  net:
+    external: true
+secrets:
+  vault_token:
+    external: true
